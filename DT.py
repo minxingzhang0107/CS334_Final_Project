@@ -23,7 +23,8 @@ x_test = np.array(x_test)
 y_train = np.array(y_train)
 y_test = np.array(y_test)
 # apply the decision tree regression
-clf = DecisionTreeRegressor(max_depth=255)
+clf = DecisionTreeRegressor(criterion="friedman_mse", max_depth=5, min_samples_leaf=11, splitter="best",
+                            min_weight_fraction_leaf=0.1, max_features="log2", max_leaf_nodes=50)
 clf.fit(x_train, y_train.flatten())
 y_pred = clf.predict(x_test)
 # calculate the root mean squared error
