@@ -1,5 +1,7 @@
+import torch
 from coral_pytorch.layers import CoralLayer
-
+from torchvision import transforms
+from torch.utils.data import DataLoader
 
 
 class ConvNet(torch.nn.Module):
@@ -45,11 +47,3 @@ class ConvNet(torch.nn.Module):
         ###--------------------------------------------------------------------###
 
         return logits, probas
-
-
-
-torch.manual_seed(random_seed)
-model = ConvNet(num_classes=NUM_CLASSES)
-model.to(DEVICE)
-
-optimizer = torch.optim.Adam(model.parameters())

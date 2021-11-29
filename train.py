@@ -5,33 +5,62 @@ from torch.utils.data import DataLoader
 
 from coral_pytorch.dataset import levels_from_labelbatch
 from coral_pytorch.losses import coral_loss
+from coral_pytorch.layers import CoralLayer
+from model import ConvNet # import from model.py
+
+'''
+# hyperparameters
+
+learning_rate = 0.05
+num_epochs = 10
+batch_size = 128
+
+# architecture
+NUM_CLASSES = 10
+'''
 
 
-for epoch in range(num_epochs):
+def train(learning_rate, num_epochs, batch_size, NUM_CLASSES):
+	random_seed = 1
 
-    model = model.train()
-    for batch_idx, (features, class_labels) in enumerate(train_loader):
-
-        ##### Convert class labels for CORAL
-        levels = levels_from_labelbatch(class_labels, 
-                                        num_classes=NUM_CLASSES)
-        ###--------------------------------------------------------------------###
-
-        features = features.to(DEVICE)
-        levels = levels.to(DEVICE)
-        logits, probas = model(features)
-
-        #### CORAL loss 
-        loss = coral_loss(logits, levels)
-        ###--------------------------------------------------------------------###   
+    # device
+    DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print('Training on', DEVICE)
 
 
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+    torch.manual_seed(random_seed)
+    model = ConvNet(num_classes=NUM_CLASSES)
+    model.to(DEVICE)
 
-        ### LOGGING
-        if not batch_idx % 200:
-            print ('Epoch: %03d/%03d | Batch %03d/%03d | Loss: %.4f' 
-                   %(epoch+1, num_epochs, batch_idx, 
-                     len(train_loader), loss))
+    # optimizer
+    optimizer = torch.optim.Adam(model.parameters())torch.manual_seed(random_seed)
+
+    for epoch in range(num_epochs):
+
+        model = model.train()
+        for batch_idx, (features, class_labels) in enumerate(train_loader):
+
+            ##### Convert class labels for CORAL
+            levels = levels_from_labelbatch(class_labels, 
+                                            num_classes=NUM_CLASSES)
+            ###--------------------------------------------------------------------###
+
+            features = features.to(DEVICE)
+            levels = levels.to(DEVICE)
+            logits, probas = model(features)
+
+            #### CORAL loss 
+            loss = coral_loss(logits, levels)
+            ###--------------------------------------------------------------------###   
+
+
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            ### LOGGING
+            if not batch_idx % 200:
+                print ('Epoch: %03d/%03d | Batch %03d/%03d | Loss: %.4f' 
+                       %(epoch+1, num_epochs, batch_idx, 
+                         len(train_loader), loss))
+
