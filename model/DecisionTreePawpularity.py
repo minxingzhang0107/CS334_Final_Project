@@ -1,11 +1,6 @@
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.datasets import make_classification
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, r2_score
-from sklearn.model_selection import GridSearchCV
 
 
 class DecisionTreePawpularity(object):
@@ -48,10 +43,10 @@ class DecisionTreePawpularity(object):
 
 
 if __name__ == '__main__':
-    x_train = pd.read_csv('x_train.csv')
-    y_train = pd.read_csv('y_train.csv')
-    x_test = pd.read_csv('x_test.csv')
-    y_test = pd.read_csv('y_test.csv')
+    x_train = pd.read_csv('../x_train.csv')
+    y_train = pd.read_csv('../y_train.csv')
+    x_test = pd.read_csv('../x_test.csv')
+    y_test = pd.read_csv('../y_test.csv')
 
     # create the model
     model = DecisionTreePawpularity()
