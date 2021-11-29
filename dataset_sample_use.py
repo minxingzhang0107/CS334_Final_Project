@@ -9,7 +9,9 @@ import torch.nn as nn
 # Initialize the dataset
 transform = nn.Sequential(transforms.CenterCrop(256))
 
-dataset = PawpularityDataset(csv_file='x_train.csv', root_dir='petfinder-pawpularity-score/train/', transform=transform)
+dataset = PawpularityDataset(csv_file='x_train.csv',
+                             root_dir='petfinder-pawpularity-score/train/',
+                             transform=transform)
 
 # Initialize the dataloader
 dataloader = DataLoader(dataset, batch_size=4, shuffle=True, num_workers=4)
