@@ -27,9 +27,12 @@ class DecisionTreePawpularity(object):
         x_train = np.array(x_train)
         y_train = np.array(y_train)
         # apply the decision tree regression
-        self.model = DecisionTreeRegressor(criterion="friedman_mse", max_depth=5, min_samples_leaf=11, splitter="best",
-                                    min_weight_fraction_leaf=0.1, max_features="log2", max_leaf_nodes=50)
-        self.model.fit(x_train, y_train.flatten())
+        clf = DecisionTreeRegressor(criterion=self.criterion, max_depth=self.max_depth,
+                                    min_samples_leaf=self.min_samples_leaf, splitter=self.splitter,
+                                    min_weight_fraction_leaf=self.min_weight_fraction_leaf,
+                                    max_features=self.max_features, max_leaf_nodes=self.max_leaf_nodes)
+        clf.fit(x_train, y_train.flatten())
+        return clf
 
     def predict(self, x_test, y_test):
         # drop the Id column
