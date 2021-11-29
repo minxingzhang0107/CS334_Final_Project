@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score, r2_score
 from sklearn.model_selection import GridSearchCV
 
 
-class decisionTreePawpularity(object):
+class DecisionTreePawpularity(object):
     criterion = "friedman_mse"
     max_depth = 5
     min_samples_leaf = 11
@@ -46,6 +46,7 @@ class decisionTreePawpularity(object):
         # change df to numpy array
         x_test = np.array(x_test)
         y_test = np.array(y_test)
+        # predict the test set
         y_pred = clf.predict(x_test)
         # calculate the root mean squared error
         rmse = np.sqrt(np.mean((y_pred - y_test) ** 2))
