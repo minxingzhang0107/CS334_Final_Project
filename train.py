@@ -6,7 +6,9 @@ from torch.utils.data import DataLoader
 from coral_pytorch.dataset import levels_from_labelbatch
 from coral_pytorch.losses import coral_loss
 from coral_pytorch.layers import CoralLayer
-from model import ConvNet # import from model.py
+from model.conv_net import ConvNet  # import from conv_net.py
+from dataset import PawpularityDataset
+from torch import nn
 
 '''
 # hyperparameters
@@ -19,9 +21,21 @@ batch_size = 128
 NUM_CLASSES = 10
 '''
 
+transform = nn.Sequential(transforms.Resize(56),
+                          transforms.CenterCrop(56),
+                          transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+                          )
+
+dataset = PawpularityDataset(csv_file='x_train.csv',
+                             root_dir='petfinder-pawpularity-score/train/',
+                             transform=transform)
+
+# Initialize the dataloader
+train_loader = DataLoader(dataset, batch_size=4, shuffle=True, num_workers=4)
+
 
 def train(learning_rate, num_epochs, batch_size, NUM_CLASSES):
-	random_seed = 1
+    random_seed = 1
 
     # device
     DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -33,23 +47,23 @@ def train(learning_rate, num_epochs, batch_size, NUM_CLASSES):
     model.to(DEVICE)
 
     # optimizer
-    optimizer = torch.optim.Adam(model.parameters())torch.manual_seed(random_seed)
+    optimizer = torch.optim.Adam(model.parameters())
+    torch.manual_seed(random_seed)
 
     for epoch in range(num_epochs):
 
         model = model.train()
-        for batch_idx, (features, class_labels) in enumerate(train_loader):
-
+        for batch_idx, data in enumerate(train_loader):
             ##### Convert class labels for CORAL
-            levels = levels_from_labelbatch(class_labels, 
+            levels = levels_from_labelbatch(data['score'],
                                             num_classes=NUM_CLASSES)
             ###--------------------------------------------------------------------###
 
-            features = features.to(DEVICE)
+            image = data['image'].to(DEVICE)
             levels = levels.to(DEVICE)
-            logits, probas = model(features)
+            logits, probas = model(image)
 
-            #### CORAL loss 
+            #### CORAL loss
             loss = coral_loss(logits, levels)
             ###--------------------------------------------------------------------###   
 
@@ -60,7 +74,11 @@ def train(learning_rate, num_epochs, batch_size, NUM_CLASSES):
 
             ### LOGGING
             if not batch_idx % 200:
-                print ('Epoch: %03d/%03d | Batch %03d/%03d | Loss: %.4f' 
+                print('Epoch: %03d/%03d | Batch %03d/%03d | Loss: %.4f'
                        %(epoch+1, num_epochs, batch_idx, 
                          len(train_loader), loss))
+
+
+if __name__ == '__main__':
+    train(learning_rate=0.05, num_epochs=10, batch_size=16, NUM_CLASSES=10)
 
