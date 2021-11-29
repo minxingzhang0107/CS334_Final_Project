@@ -26,7 +26,7 @@ transform = nn.Sequential(transforms.Resize(56),
                           transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
                           )
 
-dataset = PawpularityDataset(csv_file='x_train.csv',
+dataset = PawpularityDataset(csv_file='y_train.csv',
                              root_dir='petfinder-pawpularity-score/train/',
                              transform=transform)
 
@@ -40,7 +40,6 @@ def train(learning_rate, num_epochs, batch_size, NUM_CLASSES):
     # device
     DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print('Training on', DEVICE)
-
 
     torch.manual_seed(random_seed)
     model = ConvNet(num_classes=NUM_CLASSES)
@@ -67,7 +66,6 @@ def train(learning_rate, num_epochs, batch_size, NUM_CLASSES):
             loss = coral_loss(logits, levels)
             ###--------------------------------------------------------------------###   
 
-
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -75,10 +73,9 @@ def train(learning_rate, num_epochs, batch_size, NUM_CLASSES):
             ### LOGGING
             if not batch_idx % 200:
                 print('Epoch: %03d/%03d | Batch %03d/%03d | Loss: %.4f'
-                       %(epoch+1, num_epochs, batch_idx, 
+                      % (epoch + 1, num_epochs, batch_idx,
                          len(train_loader), loss))
 
 
 if __name__ == '__main__':
-    train(learning_rate=0.05, num_epochs=10, batch_size=16, NUM_CLASSES=10)
-
+    train(learning_rate=0.05, num_epochs=10, batch_size=64, NUM_CLASSES=101)
