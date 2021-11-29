@@ -53,24 +53,24 @@ def train(learning_rate, num_epochs, batch_size, NUM_CLASSES):
 
         model = model.train()
         for batch_idx, data in enumerate(train_loader):
-            ##### Convert class labels for CORAL
+            # Convert class labels for CORAL
             levels = levels_from_labelbatch(data['score'],
                                             num_classes=NUM_CLASSES)
-            ###--------------------------------------------------------------------###
+            # --------------------------------------------------------------------###
 
             image = data['image'].to(DEVICE)
             levels = levels.to(DEVICE)
             logits, probas = model(image)
 
-            #### CORAL loss
+            # CORAL loss
             loss = coral_loss(logits, levels)
-            ###--------------------------------------------------------------------###   
+            # --------------------------------------------------------------------###
 
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
-            ### LOGGING
+            # LOGGING
             if not batch_idx % 200:
                 print('Epoch: %03d/%03d | Batch %03d/%03d | Loss: %.4f'
                       % (epoch + 1, num_epochs, batch_idx,
@@ -78,4 +78,4 @@ def train(learning_rate, num_epochs, batch_size, NUM_CLASSES):
 
 
 if __name__ == '__main__':
-    train(learning_rate=0.05, num_epochs=10, batch_size=64, NUM_CLASSES=101)
+    train(learning_rate=0.005, num_epochs=10, batch_size=64, NUM_CLASSES=101)
