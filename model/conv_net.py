@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 
 class ConvNet(torch.nn.Module):
 
-    def __init__(self, num_classes, resolution):
+    def __init__(self, resolution, num_classes):
         super(ConvNet, self).__init__()
 
         '''
@@ -16,15 +16,31 @@ class ConvNet(torch.nn.Module):
         torch.nn.MaxPool2d((2, 2), (2, 2))) # 7x7x6
         # size is 7x7x6=294 after flattening
         '''
-        self.resolution = resolution # input dimension: resolutionXresolution
+        self.resolution = resolution  # input dimension: resolutionXresolution
+        # self.features = torch.nn.Sequential(
+        #     torch.nn.Conv2d(3, 6, (3, 3), (1, 1), 1), # For each conv layer, height and width dimensions stay the same, while channelx2.
+        #     torch.nn.AvgPool2d((2, 2), (2, 2)), # For each max pooling, height/2, width/2, channel stays the same.
+        #     torch.nn.Conv2d(6, 12, (3, 3), (1, 1), 1),
+        #     torch.nn.AvgPool2d((2, 2), (2, 2)),
+        #     torch.nn.Conv2d(12, 24, (3, 3), (1, 1), 1),
+        #     torch.nn.AvgPool2d((2, 2), (2, 2))
+        # )
         self.features = torch.nn.Sequential(
-            
             torch.nn.Conv2d(3, 6, (3, 3), (1, 1), 1), # For each conv layer, height and width dimensions stay the same, while channelx2.
+            torch.nn.ReLU(),
             torch.nn.MaxPool2d((2, 2), (2, 2)), # For each max pooling, height/2, width/2, channel stays the same.
             torch.nn.Conv2d(6, 12, (3, 3), (1, 1), 1),
+            torch.nn.ReLU(),
             torch.nn.MaxPool2d((2, 2), (2, 2)),
+            torch.nn.Dropout(0.25),
             torch.nn.Conv2d(12, 24, (3, 3), (1, 1), 1),
-            torch.nn.MaxPool2d((2, 2), (2, 2))
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(24, 48, (3, 3), (1, 1), 1),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(48, 24, (3, 3), (1, 1), 1),
+            torch.nn.ReLU(),
+            torch.nn.MaxPool2d((2, 2), (2, 2)),
+            torch.nn.Dropout(0.25)
         )
             # size after sequential layer: (resolution/8)x(resolution/8)x24
         
@@ -35,7 +51,7 @@ class ConvNet(torch.nn.Module):
         # MaxPool2d: torch.nn.MaxPool2d(kernel_size, stride=None, padding=0, dilation=1, return_indices=False, ceil_mode=False)
 
         ### Specify CORAL layer
-        self.fc = CoralLayer(size_in=(self.resolution/8)*(self.resolution/8)*24, num_classes=num_classes)
+        self.fc = CoralLayer(size_in=int(self.resolution * self.resolution*3/8), num_classes=num_classes)
         ###--------------------------------------------------------------------###
 
     def forward(self, x):
@@ -44,8 +60,6 @@ class ConvNet(torch.nn.Module):
 
         # use CORAL layer
         logits = self.fc(y)
-        logits = logits + x
         probas = torch.sigmoid(logits)
-        
 
         return logits, probas

@@ -1,15 +1,5 @@
 import numpy
 import torch
-from torchvision import datasets
-from torchvision import transforms
-from torch.utils.data import DataLoader
-
-from coral_pytorch.dataset import levels_from_labelbatch
-from coral_pytorch.losses import coral_loss
-from coral_pytorch.layers import CoralLayer
-from model.conv_net import ConvNet  # import from conv_net.py
-from dataset import PawpularityDataset
-from torch import nn
 from coral_pytorch.dataset import proba_to_label
 
 
@@ -21,7 +11,7 @@ def compute_mae_and_rmse(model, data_loader, device):
 
         for i, data in enumerate(data_loader):
             image = data['image'].to(device)
-            score = data['score'].float().to(device)
+            score = torch.flatten(data['score'].float().to(device))
 
             logits, probas = model(image)
             predicted_labels = proba_to_label(probas).float()

@@ -24,22 +24,15 @@ class DecisionTreePawpularity(object):
         # apply the decision tree regression
         clf = DecisionTreeRegressor(criterion=self.criterion, max_depth=self.max_depth,
                                     min_samples_leaf=self.min_samples_leaf, splitter=self.splitter,
-                                    min_weight_fraction_leaf=self.min_weight_fraction_leaf,
                                     max_features=self.max_features, max_leaf_nodes=self.max_leaf_nodes)
         clf.fit(x_train, y_train.flatten())
-        return clf
+        self.model = clf
 
-    def predict(self, x_test, y_test):
-        # drop the Id column
-        x_test = x_test.drop(['Id'], axis=1)
-        y_test = y_test.drop(['Id'], axis=1)
+    def predict(self, x_test):
         # change df to numpy array
         x_test = np.array(x_test)
-        y_test = np.array(y_test)
         y_pred = self.model.predict(x_test)
-        # calculate the root mean squared error
-        rmse = np.sqrt(np.mean((y_pred - y_test) ** 2))
-        return rmse
+        return y_pred
 
 
 if __name__ == '__main__':

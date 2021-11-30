@@ -23,7 +23,7 @@ NUM_CLASSES = 10
 '''
 
 
-def train(train_loader, learning_rate, num_epochs, batch_size, NUM_CLASSES):
+def train(train_loader, learning_rate, num_epochs, NUM_CLASSES, resolution):
     random_seed = 1
 
     # device
@@ -31,16 +31,15 @@ def train(train_loader, learning_rate, num_epochs, batch_size, NUM_CLASSES):
     print('Training on', DEVICE)
 
     torch.manual_seed(random_seed)
-    model = ConvNet(num_classes=NUM_CLASSES)
-    model.to(DEVICE)
+    model = ConvNet(num_classes=NUM_CLASSES, resolution=resolution).to(DEVICE)
 
     # optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     torch.manual_seed(random_seed)
 
-    model = model.train()
 
     for epoch in range(num_epochs):
+        model.train()
         for batch_idx, data in enumerate(train_loader):
             ##### Convert class labels for CORAL
             levels = levels_from_labelbatch(data['score'],
@@ -87,4 +86,4 @@ if __name__ == '__main__':
     # Initialize the dataloader
     train_loader = DataLoader(dataset, batch_size=4, shuffle=True, num_workers=4)
 
-    train(train_loader, learning_rate=0.005, num_epochs=10, batch_size=64, NUM_CLASSES=101)
+    train(train_loader, learning_rate=0.005, num_epochs=10, NUM_CLASSES=101)
