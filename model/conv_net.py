@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 
 class ConvNet(torch.nn.Module):
 
-    def __init__(self, num_classes):
+    def __init__(self, num_classes, resolution):
         super(ConvNet, self).__init__()
 
         '''
@@ -16,17 +16,17 @@ class ConvNet(torch.nn.Module):
         torch.nn.MaxPool2d((2, 2), (2, 2))) # 7x7x6
         # size is 7x7x6=294 after flattening
         '''
-
+        
         self.features = torch.nn.Sequential(
-            # input resolution: 56x56
-            torch.nn.Conv2d(3, 6, (3, 3), (1, 1), 1),
-            torch.nn.MaxPool2d((2, 2), (2, 2)),
+            
+            torch.nn.Conv2d(3, 6, (3, 3), (1, 1), 1), # For each conv layer, height and width dimensions stay the same, while channelx2.
+            torch.nn.MaxPool2d((2, 2), (2, 2)), # For each max pooling, height/2, width/2, channel stays the same.
             torch.nn.Conv2d(6, 12, (3, 3), (1, 1), 1),
             torch.nn.MaxPool2d((2, 2), (2, 2)),
             torch.nn.Conv2d(12, 24, (3, 3), (1, 1), 1),
             torch.nn.MaxPool2d((2, 2), (2, 2))
         )
-            # size: 7x7x24=1176
+            # size after sequential layer: (resolution/8)x(resolution/8)x24
         
         # conv2d: https://pytorch.org/docs/stable/generated/torch.nn.Conv2d.html
         # torch.nn.Conv2d(in_channels, out_channels, kernel_size, stride=1, padding=0, 
@@ -35,16 +35,16 @@ class ConvNet(torch.nn.Module):
         # MaxPool2d: torch.nn.MaxPool2d(kernel_size, stride=None, padding=0, dilation=1, return_indices=False, ceil_mode=False)
 
         ### Specify CORAL layer
-        self.fc = CoralLayer(size_in=1176, num_classes=num_classes)
+        self.fc = CoralLayer(size_in=(resolution/8)*(resolution/8)*24, num_classes=num_classes)
         ###--------------------------------------------------------------------###
 
     def forward(self, x):
-        x = self.features(x)
-        x = x.view(x.size(0), -1)  # flatten
+        y = self.features(x)
+        y = y.view(y.size(0), -1)  # flatten
 
-        ##### Use CORAL layer #####
-        logits = self.fc(x)
+        # use CORAL layer
+        logits = self.fc(y)
         probas = torch.sigmoid(logits)
-        ###--------------------------------------------------------------------###
+        
 
         return logits, probas

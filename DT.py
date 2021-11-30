@@ -40,7 +40,7 @@ parameters = {"criterion": ["squared_error", "friedman_mse", "absolute_error", "
               "max_leaf_nodes": [None, 10, 30, 50, 70, 90]
               }
 model_tuning = GridSearchCV(DecisionTreeRegressor(), param_grid=parameters, scoring='neg_root_mean_squared_error'
-                            , cv=5, verbose=1)
+                            , cv=5, verbose=1, n_jobs=14)
 model_tuning.fit(x_train, y_train.flatten())
 print(model_tuning.best_params_)
 
