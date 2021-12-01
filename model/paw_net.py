@@ -8,9 +8,11 @@ from torch.utils.data import DataLoader
 from dataset import PawpularityDataset
 from coral_pytorch.dataset import levels_from_labelbatch
 from coral_pytorch.losses import coral_loss
-from test import compute_mae_and_rmse
 import numpy
 from coral_pytorch.dataset import proba_to_label
+from pytorch_grad_cam import GradCAM
+from pytorch_grad_cam.utils.image import show_cam_on_image
+import matplotlib.pyplot as plt
 
 
 class PawNet:
@@ -73,7 +75,7 @@ class PawNet:
 
                 image = data['image'].to(self.device)
                 levels = levels.to(self.device)
-                logits, probas = self.deep(image)
+                logits = self.deep(image)
 
                 # CORAL loss
                 loss = coral_loss(logits, levels)
@@ -96,7 +98,7 @@ class PawNet:
                 mae, rmse = self.predict(test_loader)
                 print('Epoch: %03d/%03d | Test MAE: %.4f | Test RMSE: %.4f'
                       % (epoch + 1, self.epochs, mae, rmse))
-        torch.save(self.deep.state_dict(), 'deep_model.pt')
+        # torch.save(self.deep.state_dict(), 'deep_model.pt')
 
     def predict(self, data_loader):
         with torch.no_grad():
@@ -107,7 +109,8 @@ class PawNet:
                 image = data['image'].to(self.device)
                 score = torch.flatten(data['score'].float().to(self.device))
 
-                logits, probas = self.deep(image)
+                logits = self.deep(image)
+                probas = torch.sigmoid(logits)
                 predicted_labels = proba_to_label(probas).float()
                 shallow_prediction = self.shallow.predict(data['metadata'])
 
@@ -121,8 +124,29 @@ class PawNet:
             rmse = numpy.sqrt(mse / num_examples)
             return mae, rmse
 
+    def load_model(self, path: str):
+        self.shallow.train()
+        self.deep.load_state_dict(torch.load(path))
 
-if __name__ == '__main__':
-    paw_net = PawNet(input_shape=128)
-    paw_net.initialize_dataloader()
-    paw_net.train(evaluate=True)
+    def explain(self):
+        batch_size = self.batch_size
+        self.batch_size = 1
+        cam = GradCAM(self.deep, target_layers=self.deep.features, use_cuda=True)
+
+        # Load the test data
+        test_loader = self.initialize_dataloader()[1]
+        for i, test_data in enumerate(test_loader):
+            if i > 10:
+                break
+            image = test_data['image']
+            score = test_data['score'].int().item()
+
+            # Get the CAM
+            grayscale_cam = cam(input_tensor=image, target_category=score)
+            grayscale_cam = grayscale_cam[0, :]
+            input_image = numpy.transpose((image[0] / 255).numpy(), (1, 2, 0))
+            visualization = show_cam_on_image(input_image, grayscale_cam, use_rgb=True)
+            plt.imshow(visualization)
+            plt.show()
+
+        self.batch_size = batch_size

@@ -13,7 +13,8 @@ def compute_mae_and_rmse(model, data_loader, device):
             image = data['image'].to(device)
             score = torch.flatten(data['score'].float().to(device))
 
-            logits, probas = model(image)
+            logits = model(image)
+            probas = torch.sigmoid(logits)
             predicted_labels = proba_to_label(probas).float()
 
             num_examples += score.size(0)

@@ -48,7 +48,7 @@ def train(train_loader, learning_rate, num_epochs, NUM_CLASSES, resolution):
 
             image = data['image'].to(DEVICE)
             levels = levels.to(DEVICE)
-            logits, probas = model(image)
+            logits = model(image)
 
             #### CORAL loss
             loss = coral_loss(logits, levels)

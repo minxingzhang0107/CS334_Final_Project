@@ -24,6 +24,7 @@ class DecisionTreePawpularity(object):
         # apply the decision tree regression
         clf = DecisionTreeRegressor(criterion=self.criterion, max_depth=self.max_depth,
                                     min_samples_leaf=self.min_samples_leaf, splitter=self.splitter,
+                                    min_weight_fraction_leaf=self.min_weight_fraction_leaf,
                                     max_features=self.max_features, max_leaf_nodes=self.max_leaf_nodes)
         clf.fit(x_train, y_train.flatten())
         self.model = clf

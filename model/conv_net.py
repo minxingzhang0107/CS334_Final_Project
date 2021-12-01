@@ -62,4 +62,4 @@ class ConvNet(torch.nn.Module):
         logits = self.fc(y)
         probas = torch.sigmoid(logits)
 
-        return logits, probas
+        return logits
