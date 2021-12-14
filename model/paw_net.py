@@ -55,8 +55,9 @@ class PawNet:
 
         return train_loader, test_loader
 
-    def train_deep(self, evaluate=False):
-        train_loader, test_loader = self.initialize_dataloader()
+    def train_deep(self, evaluate=False, train_loader=None, test_loader=None):
+        if train_loader is None:
+            train_loader, test_loader = self.initialize_dataloader()
 
         print('Training on', self.device)
 

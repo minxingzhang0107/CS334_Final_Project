@@ -19,8 +19,6 @@ class DenseNet(torch.nn.Module):
             torch.nn.Linear(1400, 800)
         )
 
-        
-        
         self.fc = CoralLayer(size_in=800, num_classes=101) # returns error when the argument is "size_in=(56/8)*(56/8)*7"
 
     def forward(self, x):
@@ -28,8 +26,5 @@ class DenseNet(torch.nn.Module):
 
         # use CORAL layer
         logits = self.fc(y)
-        
-        probas = torch.sigmoid(logits)
-        
 
-        return logits, probas
+        return logits

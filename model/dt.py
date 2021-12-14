@@ -16,8 +16,9 @@ class DecisionTreePawpularity(object):
 
     def train(self, x_train, y_train):
         # drop the Id column
-        x_train = x_train.drop(['Id'], axis=1)
-        y_train = y_train.drop(['Id'], axis=1)
+        if isinstance(x_train, pd.DataFrame):
+            x_train = x_train.drop(['Id'], axis=1)
+            y_train = y_train.drop(['Id'], axis=1)
         # change df to numpy array
         x_train = np.array(x_train)
         y_train = np.array(y_train)
