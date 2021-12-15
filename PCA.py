@@ -1,11 +1,6 @@
-import argparse
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import accuracy_score, roc_curve, auc, roc_auc_score
-from sklearn.linear_model import LogisticRegression
-import matplotlib.pyplot as plt
 
 
 # load x_train, y_train, x_test, y_test
