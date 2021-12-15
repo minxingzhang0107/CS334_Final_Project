@@ -47,7 +47,7 @@ def kfold_test(model=None):
 
         paw_net = PawNet(input_shape=256, epochs=12)
         if model is not None:
-            paw_net.deep = model
+            paw_net.deep = model(resolution=256)
 
         paw_net.shallow.train(x_train, y_train)
         paw_net.train_deep(train_loader=train_loader, test_loader=val_loader, evaluate=True)

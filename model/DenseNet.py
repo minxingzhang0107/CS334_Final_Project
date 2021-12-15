@@ -5,12 +5,12 @@ from coral_pytorch.layers import CoralLayer
 # input size 3136
 class DenseNet(torch.nn.Module):
 
-    def __init__(self):
+    def __init__(self, resolution=256):
         super(DenseNet, self).__init__()
 
         self.features = torch.nn.Sequential(
             torch.nn.Flatten(),
-            torch.nn.Linear(3 * 256 * 256, 2000),  # Note: in_features is 9408 because the images has 3 channels
+            torch.nn.Linear(3 * resolution * resolution, 2000),  # Note: in_features is 9408 because the images has 3 channels
             torch.nn.Linear(2000, 1400),
             torch.nn.Linear(1400, 800)
         )
