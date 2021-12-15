@@ -7,27 +7,23 @@ from dataset import PawpularityDataset
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
-if __name__ == '__main__':
+
+def kfold_test(model=None):
     resolution = 256
     batch_size = 32
-
     transform = nn.Sequential(transforms.Resize(resolution),
                               transforms.CenterCrop(resolution),
                               transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
                               )
-
     dataset = PawpularityDataset(csv_file='y_train.csv',
                                  root_dir='petfinder-pawpularity-score/train/',
                                  transform=transform)
     test_dataset = PawpularityDataset(csv_file='y_test.csv',
                                       root_dir='petfinder-pawpularity-score/train/',
                                       transform=transform)
-
     kf = KFold(n_splits=7, shuffle=True, random_state=42)
     rmses = []
-
     dataset = numpy.array(dataset)
-
     for train_index, test_index in kf.split(dataset):
         train_dataset, val_dataset = dataset[train_index], dataset[test_index]
 
@@ -50,16 +46,20 @@ if __name__ == '__main__':
             y_val[index] = sample['score'].cpu().item()
 
         paw_net = PawNet(input_shape=256, epochs=12)
+        if model is not None:
+            paw_net.deep = model
 
         paw_net.shallow.train(x_train, y_train)
         paw_net.train_deep(train_loader=train_loader, test_loader=val_loader, evaluate=True)
         mae, rmse = paw_net.predict(val_loader)
         rmses.append(rmse)
         print(f'RMSE: {rmse}')
-
     print(f'Average RMSE: {numpy.mean(rmses)}')
     print(f'Standard Deviation: {numpy.std(rmses)}')
 
+
+if __name__ == '__main__':
+    kfold_test()
 
     # paw_net.train(evaluate=True)
     # paw_net.load_model('deep_model.pt')

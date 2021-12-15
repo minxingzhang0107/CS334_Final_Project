@@ -14,7 +14,7 @@ class DenseNet(torch.nn.Module):
         
         self.features = torch.nn.Sequential(
             torch.nn.Flatten(),
-            torch.nn.Linear(9408, 2000), # Note: in_features is 9408 because the images has 3 channels
+            torch.nn.Linear(3*256*256, 2000), # Note: in_features is 9408 because the images has 3 channels
             torch.nn.Linear(2000, 1400),
             torch.nn.Linear(1400, 800)
         )
