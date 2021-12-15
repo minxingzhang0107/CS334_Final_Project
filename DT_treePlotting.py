@@ -5,6 +5,7 @@ from sklearn import tree
 import pandas as pd
 import numpy as np
 
+
 # load x_train.csv and y_train.csv
 x_train = pd.read_csv("x_train.csv")
 y_train = pd.read_csv("y_train.csv")
